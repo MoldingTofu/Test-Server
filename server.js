@@ -26,7 +26,7 @@ router.use(function(req, res, next) {
 });
 
 // this is an alias, so people don’t know the real file-path of your application
-app.use('/api1', express.static(__dirname + '/session2/bb/'));
+app.use('/api1', express.static(__dirname));
 //they can ask for `static/critical.js` and get `app/important/critical.js`, but
 //a hacker wouldn’t know the file path to actually get the file if they got mischievous
 
@@ -69,12 +69,12 @@ router.route("/post/")
 // --> localhost:8080/api/ui2/static
 // localhost:8080/api/ui2
 // --> localhost:8080/api/static
-app.use('/api/ui2/static', express.static(__dirname + '/session2/ui2/'));
+app.use('/api/ui2/static', express.static(__dirname));
 
 // route for the second
 router.route("/ui2/")
     .get(function(req, res) {
-        res.sendFile(__dirname + "/session2/ui2/homepage.html");
+        res.sendFile(__dirname + "/homepage.html");
     });
 
 router.route("/groceries/all/")
