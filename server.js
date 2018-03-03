@@ -2,6 +2,7 @@ var sqlite = require("sqlite3");
 var express = require("express");
 var bodyParser = require("body-parser");
 var app = express();
+var db = require("./database.js");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -28,6 +29,19 @@ app.use('/static', express.static(__dirname + '/app/webpage/'));
 //they can ask for `static/critical.js` and get `app/important/critical.js`, but
 //a hacker wouldn’t know the file path to actually get the file if they got mischievous
 
+router.route("/put/")
+    .get(function(req, res) { // GET requests respond with Hello World
+db.run("INSERT INTO users(email, pswd) VALUES (?,?);", ["him", "1234"], function(err) {
+   if (err) {
+       console.error(err.code);
+   } else {
+       console.log("making user...");
+       console.log({ message: "Success" });
+   }
+   return;
+});
+});
+
 router.route("/something/arbitrary/")
     .get(function(req, res) { // GET requests respond with Hello World
         // res.send(err.message);
@@ -35,6 +49,18 @@ router.route("/something/arbitrary/")
             // JavaScript Object Notation
             // Can be parsed out by more than JavaScript (Python, etc)
 });
+
+router.route("/get/")
+    .get(function(req, res) { // GET requests respond with Hello World
+    query = "SELECT id FROM users WHERE email = ? AND pswd = ?;"
+db.all(query, ["me", "1234"], function(err, users) {
+           if (err)
+               console.log(err.message);
+           res.send(users);
+           return;
+       });
+});
+
 
 // -----------------------------------------------------------------------------
 //add-on to the IP address and port #, for minor security and/or personal flair
