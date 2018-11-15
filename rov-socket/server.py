@@ -13,7 +13,7 @@ print "socket is listening"
 
 while True:
   c, addr = s.accept()
-  print "got connection from %s" %(addr)
+  print "got connection from ", addr
 
   c.send("sent")
 
