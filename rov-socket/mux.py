@@ -2,28 +2,17 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
+app.config['SECRET_KEY'] = 'key'
 socketio = SocketIO(app)
 
-@app.route('/')
-def index():
-  return render_template('index.html')
+@socketio.on('message')
+def handle_message(message):
+  send(message)
 
-@socketio.on('my event', namespace='/test')
-def test_message(message):
-  emit('my response', {'data': message['data']})
-
-@socketio.on('my broadcast event', namespace='/test')
-def test_message(message):
-  emit('my response', {'data': message['data']}, broadcast=True)
-
-@socketio.on('connect', namespace='/test')
-def test_connect():
-  emit('my response', {'data': 'Connected'})
-
-@socketio.on('disconnect', namespace='/test')
-def test_disconnect():
-  print('Client disconnected')
+@socketio.on('json')
+def handle_json(json):
+  #send to ros?
+  print('received json: ' + str(json))
 
 if __name__ == '__main__':
   socketio.run(app)
