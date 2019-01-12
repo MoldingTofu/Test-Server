@@ -10,3 +10,5 @@ pip install flask --user
 ```
 pip install flask-socketio --user
 ```
+
+broken pipe issue: https://stackoverflow.com/questions/180095/how-to-handle-a-broken-pipe-sigpipe-in-python/180922#180922
