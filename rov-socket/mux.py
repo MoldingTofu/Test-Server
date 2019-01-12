@@ -22,11 +22,11 @@ def background_thread():
 def index():
   return render_template('index.html', async_mode=socketio.async_mode)
 
-#@socketio.on('my_event', namespace='/test')
-#def text_message(message):
-#  session['receive_count'] = session.get('receive_count', 0) + 1
-#  emit('my_response',
-#    {'data': message['data'], 'count':session['receive_count']})
+@socketio.on('on_connect', namespace='/test')
+def text_message(message):
+  session['receive_count'] = session.get('receive_count', 0) + 1
+  emit('my_response',
+    {'data': message['data'], 'count':session['receive_count']})
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
@@ -43,7 +43,7 @@ def send_data(json):
     {'data': json['data'], 'count': session['receive_count']})
   print('received json: ' + str(json))
 
-@socketio.on('disconnect_request', namespace='/test')
+@socketio.on('disconnect', namespace='/test')
 def disconnect_request():
   session['receive_count'] = session.get('receive_count', 0) + 1
   emit('my_response',
