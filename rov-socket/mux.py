@@ -22,11 +22,11 @@ def background_thread():
 def index():
   return render_template('index.html', async_mode=socketio.async_mode)
 
-@socketio.on('my_event', namespace='/test')
-def text_message(message):
-  session['receive_count'] = session.get('receive_count', 0) + 1
-  emit('my_response',
-    {'data': message['data'], 'count':session['receive_count']})
+#@socketio.on('my_event', namespace='/test')
+#def text_message(message):
+#  session['receive_count'] = session.get('receive_count', 0) + 1
+#  emit('my_response',
+#    {'data': message['data'], 'count':session['receive_count']})
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
@@ -35,6 +35,16 @@ def test_connect():
     if thread is None:
       thread = socketio.start_background_task(target=background_thread)
   emit('my_response', {'data': 'Connected', 'count':0})
+
+@socketio.on('send_event', namespace='/test')
+def send_event(message):
+  session['receive_count'] = session.get('receive_count', 0) + 1
+  emit('my_response',
+    {'data': message['data'], 'count': session['receive_count']})
+
+@socketio.on('get_event')
+def get_event(json):
+  print('received json: ' + str(json))
 
 @socketio.on('disconnect_request', namespace='/test')
 def disconnect_request():

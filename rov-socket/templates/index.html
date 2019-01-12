@@ -33,6 +33,14 @@
             socket.on('my_response', function(msg) {
                 $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
             });
+            $('form#send').submit(function(event) {
+                socket.emit('send_event', {data: $('#send_data').val()});
+                return false;
+            });
+            $('form#get').submit(function(event) {
+                socket.emit('get_event', {data: $('#get_data').val()});
+                return false;
+            });
             $('form#disconnect').submit(function(event) {
                 socket.emit('disconnect_request');
                 return false;
@@ -44,6 +52,14 @@
 <body>
   <h1>Receive:</h2>
   <div id="log"></div>
+  <form id="send" method="POST" action='#'>
+    <input type="text" name="send_data" id="send_data" placeholder="Message">
+    <input type="submit" value="Send">
+  </form>
+  <form id="get" method="POST" action='#'>
+    <input type="text" name="get_data" id="get_data" placeholder="Message">
+    <input type="submit" value="Get">
+  </form>
   <form id="disconnect" method="POST" action="#">
     <input type="submit" value="Disconnect">
   </form>
