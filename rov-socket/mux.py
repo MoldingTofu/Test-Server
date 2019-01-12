@@ -20,7 +20,7 @@ def background_thread():
 
 @app.route('/')
 def index():
-  return render_template('index.html', async_mode=socketio.async_mode)
+  return render_template('test.html', async_mode=socketio.async_mode)
 
 @socketio.on('on_connect', namespace='/test')
 def text_message(message):
@@ -51,4 +51,4 @@ def disconnect_request():
   disconnect()
 
 if __name__ == '__main__':
-  socketio.run(app)
+  socketio.run(app, debug=True)
