@@ -36,11 +36,13 @@ def test_connect():
       thread = socketio.start_background_task(target=background_thread)
   emit('my_response', {'data': 'Connected', 'count':0})
 
-@socketio.on('send_data', namespace='/test')
-def send_data(json):
+#get packet and send new packet
+@socketio.on('update_data', namespace='/test')
+def update_data(json):
   session['receive_count'] = session.get('receive_count', 0) + 1
-  emit('my_response',
-    {'data': json['data'], 'count': session['receive_count']})
+  emit('my_response', {'data': 'bye', 'count': session['receive_count']})
+  #emit('my_response',
+    #{'data': json['data'], 'count': session['receive_count']})
   print('received json: ' + str(json))
 
 @socketio.on('disconnect', namespace='/test')
