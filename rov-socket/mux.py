@@ -40,10 +40,15 @@ def test_connect():
 @socketio.on('update_data', namespace='/test')
 def update_data(json):
   session['receive_count'] = session.get('receive_count', 0) + 1
-  emit('my_response', {'data': 'bye', 'count': session['receive_count']})
+  #emit('my_response', {'data': 'bye', 'count': session['receive_count']})
+  emit('my_response', new_data(json))
   #emit('my_response',
     #{'data': json['data'], 'count': session['receive_count']})
   print('received json: ' + str(json))
+
+def new_data(json):
+  json['data'] = 'bye'
+  return json
 
 @socketio.on('disconnect', namespace='/test')
 def disconnect_request():
