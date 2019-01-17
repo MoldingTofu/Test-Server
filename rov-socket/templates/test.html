@@ -32,6 +32,8 @@
             // section of the page.
             socket.on('my_response', function(msg) {
                 $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+                if (msg.data != 'Server generated event')
+                  $('#value').text(msg.data);
             });
             $('form#send').submit(function(event) {
                 socket.emit('update_data', {data: $('#update_data').val()});
@@ -45,17 +47,18 @@
     </script>
     <style>
       .row {
-        display = flex;
+        display: flex;
       }
 
       .column {
-        flex = 50%;
+        flex: 50%;
       }
     </style>
 </head>
 
 <body>
-  <h1>Send Packet:</h2>
+  <h1>Send Packet:</h1>
+  <h2 id="value"></h2>
   <div class="row">
     <div class="column">
       <form id="send" method="POST" action='#'>
