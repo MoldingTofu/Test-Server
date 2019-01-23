@@ -1,11 +1,13 @@
-import socketio # for socket
+import socketio
 
 sio = socketio.Client()
 
 @sio.on('connect')
 def on_connect():
-  print('connected')
+    print('I\'m connected to the server')
 
 if __name__ == '__main__':
-  sio.connect('http://localhost:5000/')
-  sio.wait()
+  url = 'http://localhost:5000/'
+  sio.connect(url, namespaces=['/test'])
+  sio.emit('update_data', {'data': 'hi'})
+  sio.disconnect()
