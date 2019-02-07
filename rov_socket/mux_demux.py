@@ -4,50 +4,64 @@ from shared_msgs.msg import can_msg, auto_command_msg, thrust_status_msg, thrust
 from sensor_msgs.msg import Imu, Temperature
 from std_msgs.msg import Float32
 
-from threading import Lock
-from flask import Flask, render_template, session, request
-from flask_socketio import SocketIO, emit, disconnect
-
 async_mode = None
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'key'
 socketio = SocketIO(app, async_mode=async_mode)
-thread = None
+thread = Node
 thread_lock = Lock()
-
-def status_received(msg):
-  mapper = packet_mapper(packet)
 
 @socketio.on('dearclient')
 def dearclient():
+  #build packet
+  #emit('my_response', packet)
   pass
 
 @socketio.on('dearflask')
 def dearflask(json):
+  mapper = packet_mapper(json)
+  print mapper.names
+
+def name_received(msg):
   pass
+
+#def thrust_status_received(msg):
+#  pass # This runs on a seperate thread
+#def esc_single_received(msg):
+#  pass # This runs on a seperate thread
+
+#def temp_received(msg):
+#  pass # This runs on a seperate thread
+#def imu_received(msg):
+#  pass # This runs on a seperate thread
+#def ph_received(msg):
+#  pass # This runs on a seperate thread
+#def depth_received(msg):
+#  pass # This runs on a seperate thread
 
 if __name__ == "__main__":
   rospy.init_node('mux_demux')
   ns = rospy.get_namespace() # This should return /surface
+  
 
   # Retrieve data from the ROS System
   esc_sub = rospy.Subscriber('/rov/esc_single', 
-    esc_single_msg, status_received)
+      esc_single_msg, esc_single_received)
 
-  status_sub = rospy.Subscriber('/rov/thrust_status',
-    thrust_status_msg, status_received);
+  status_sub = rospy.Subscriber('/rov/thrust_status',thrust_status_msg,
+    thrust_status_received);
 
   temp_sub = rospy.Subscriber('/rov/temp', Temperature,
-    status_received);
+    temp_received);
 
   imu_sub = rospy.Subscriber('/rov/imu', Imu,
-    status_received);
+    imu_received);
 
   ph_sub = rospy.Subscriber('/rov/ph',Float32,
-    status_received);
+    ph_received);
 
   depth_sub = rospy.Subscriber('/rov/depth', Float32,
-    status_received);
+    depth_received);
 
   # Publishers out onto the ROS System
   thrust_pub = rospy.Publisher(ns + 'thrust_command',
@@ -59,8 +73,6 @@ if __name__ == "__main__":
   socketio.run(app, port=5001, debug=True)
 
   rate = rospy.Rate(10) # 10hz
-  # TODO: I2C related activities
-  while not rospy.is_shutdown():
-    thrust_pub.publish(thrust_command_msg())
-    auto_pub.publish(auto_command_msg())
-    rate.sleep()
+  rospy.spin()
+  #thrust_pub.publish(thrust_command_msg())
+  #auto_pub.publish(auto_command_msg())
