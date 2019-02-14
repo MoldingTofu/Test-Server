@@ -5,6 +5,10 @@ from shared_msgs.msg import can_msg, auto_command_msg, thrust_status_msg, thrust
 from sensor_msgs.msg import Imu, Temperature
 from std_msgs.msg import Float32
 
+from threading import Lock
+from flask import Flask, render_template, session, request
+from flask_socketio import SocketIO, emit, disconnect
+
 async_mode = None
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'key'
@@ -24,9 +28,15 @@ auto_pub = None
 
 @socketio.on('dearflask')
 def dearflask(json):
-  global dearFlask = json
+  dearFlask = json
   emit('my_response', dearClient)
+
+  for data in dearFlask["thrusters"]:
+    setattr(thrust_command_msg(), data, dearFlask["thrusters"][data])
   thrust_pub.publish(thrust_command_msg())
+
+  for data in dearFlask["auto"]:
+    setattr(auto_command_msg(), data, dearFlask["auto"][data])
   auto_pub.publish(auto_command_msg())
 
 def name_received(msg):
