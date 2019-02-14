@@ -19,20 +19,25 @@ thread_lock = Lock()
 with open ('../../../../surface/frontend/src/packets.json') as json_data:
   data = json.load(json_data,)
 
-dearFlask = data['dearflask']
-dearClient = data['dearclient']
-flaskMapper = packet_mapper(dearFlask)
-clientMapper = packet_mapper(dearClient)
+dearflask = data['dearflask']
+dearclient = data['dearclient']
+fmapper = packet_mapper(dearflask)
+cmapper = packet_mapper(dearclient)
 thrust_pub = None
 auto_pub = None
 
 @socketio.on('dearflask')
 def dearflask(json):
+<<<<<<< HEAD
   dearFlask = json
   emit('my_response', dearClient)
 
   for data in dearFlask["thrusters"]:
     setattr(thrust_command_msg(), data, dearFlask["thrusters"][data])
+=======
+  global dearflask = json
+  emit('my_response', dearclient)
+>>>>>>> 849dff9890afd5ee191629b4df37a9ea42476478
   thrust_pub.publish(thrust_command_msg())
 
   for data in dearFlask["auto"]:
