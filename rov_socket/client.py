@@ -1,14 +1,15 @@
-import socketio
-import time
+import socket
 
-sio = socketio.Client()
+#create an INET, STREAMing socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((socket.gethostname(), 80))
 
-@sio.on('connect')
-def on_connect():
-    print('Connected to the server')
+dearflask = { 'data': 1, 'meme': { 'lol': 'hehexd' } }
 
-if __name__ == '__main__':
-  sio.connect('http://localhost:5001')
-  sio.emit('connect')
-  sio.emit('dearclient')
-  sio.disconnect()
+s.send('12345')
+
+def dearflask(json):
+  pass
+
+def dearclient():
+  pass

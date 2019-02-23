@@ -1,67 +1,56 @@
-#!/usr/bin/env python
-from threading import Lock
-from flask import Flask, render_template, session, request
-from flask_socketio import SocketIO, emit, disconnect
+import socket
+import json
+from StringIO import StringIO
 
-async_mode = None
+dearclient = { 'data' : { 'one': 1, 'two': 2 }, 'lol': 'meme' }
+serversocket = None
+clientsocket = None
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode=async_mode)
-thread = None
-thread_lock = Lock()
+def post():
+  global dearclient
+  global serversocket
+  encode = serialize(dearclient)
+  head = str(len(encode))
 
-def background_thread():
+  for x in range(10 - len(head)):
+    head = '0' + head
+
+  encode = head + encode
+  serversocket.send(encode)
+
+# return deserialized json
+def get(data):
+  global clientsocket
+  chunks = []
   count = 0
-  while True:
-    socketio.sleep(10)
-    count += 1
-    socketio.emit('my_response', {'data': 'Server generated event', 'count': count}, namespace='/test')
+  length = clientsocket.recv(10)
+  length = int(length)
 
-@app.route('/')
-def index():
-  return render_template('test.html', async_mode=socketio.async_mode)
+  return deserialize(clientsocket.recv(length))
 
-@socketio.on('on_connect', namespace='/test')
-def text_message(message):
-  session['receive_count'] = session.get('receive_count', 0) + 1
-  emit('my_response',
-    {'data': message['data'], 'count':session['receive_count']})
 
-@socketio.on('connect', namespace='/test')
-def test_connect():
-  global thread
-  with thread_lock:
-    if thread is None:
-      thread = socketio.start_background_task(target=background_thread)
-  emit('my_response', {'data': 'Connected', 'count':0})
+def serialize(data):
+  io = StringIO()
+  json.dump(data, io)
+  return io.getvalue()
 
-#get packet and send new packet
-@socketio.on('update_data', namespace='/test')
-def update_data(json):
-  session['receive_count'] = session.get('receive_count', 0) + 1
-  print('received json: ' + str(json))
-  json = new_data(json)
-  emit('my_response', { 'data': json['data'], 'count': session['receive_count'] })
-  print('sent json: ' + str(json))
-  #emit('my_response',
-    #{'data': json['data'], 'count': session['receive_count']})
+def deserialize(data):
+  io = StringIO(data)
+  return json.load(io)
 
-def new_data(json):
-  if json['data'] == 'bye':
-    json['data'] = 'hi'
-  elif json['data'] == 'hi':
-    json['data'] = 'bye'
-  else:
-    json['data'] = 'some new data'
-  return json
+def server():
+  global serversocket
+  global clientsocket
 
-@socketio.on('disconnect', namespace='/test')
-def disconnect_request():
-  session['receive_count'] = session.get('receive_count', 0) + 1
-  emit('my_response',
-    {'data': 'disconnected', 'count': session['receive_count']})
-  disconnect()
+  #create an INET, STREAMing socket
+  serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+  #bind the socket to a public host, and a well-known port
+  serversocket.bind((socket.gethostname(), 80))
+  #become a server socket
+
+  serversocket.listen(5)
+  (clientsocket, address) = serversocket.accept()
 
 if __name__ == '__main__':
-  socketio.run(app, port=5001, debug=True)
+  server()
