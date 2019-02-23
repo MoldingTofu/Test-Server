@@ -6,6 +6,7 @@ dearclient = { 'data' : { 'one': 1, 'two': 2 }, 'lol': 'meme' }
 serversocket = None
 clientsocket = None
 
+# posts dearclient
 def post():
   global dearclient
   global serversocket
@@ -18,8 +19,8 @@ def post():
   encode = head + encode
   serversocket.send(encode)
 
-# return deserialized json
-def get(data):
+# return deserialized dearflask
+def get():
   global clientsocket
   chunks = []
   count = 0
@@ -48,9 +49,16 @@ def server():
   #bind the socket to a public host, and a well-known port
   serversocket.bind((socket.gethostname(), 80))
   #become a server socket
+  print('server started')
 
   serversocket.listen(5)
   (clientsocket, address) = serversocket.accept()
+  print('client connected')
 
 if __name__ == '__main__':
   server()
+  data = get()
+  print(data)
+  print(type(data))
+
+  #post()
