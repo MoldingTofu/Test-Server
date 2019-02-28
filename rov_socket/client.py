@@ -1,8 +1,11 @@
 import socket
 import json
+import os
 from StringIO import StringIO
 
-dearflask = { 'data': 1, 'meme': { 'lol': 'hehexd' } }
+with open ('packet.json') as json_data:
+  dearflask = json.load(json_data,)
+#dearflask = { 'data': 1, 'meme': { 'lol': 'hehexd' } }
 #dearflask = {'youngsik': 'meme', 'tobi': 'peen', 'jeremy': {'sheen': 'leen', 'dean': 'fiend'} }
 
 s = None

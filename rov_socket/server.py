@@ -2,6 +2,9 @@ import socket
 import json
 from StringIO import StringIO
 
+with open ('packet.json') as json_data:
+  dearflask = json.load(json_data,)
+
 dearclient = { 'data' : { 'one': 1, 'two': 2 }, 'lol': 'meme' }
 serversocket = None
 clientsocket = None
@@ -39,7 +42,7 @@ def deserialize(data):
   io = StringIO(data)
   return json.load(io)
 
-def server():
+def init_server():
   global serversocket
   global clientsocket
 
@@ -51,14 +54,32 @@ def server():
   #become a server socket
   print('server started')
 
+#wait
+def listen():
+  global serversocket
+  global clientsocket
+
   serversocket.listen(5)
   (clientsocket, address) = serversocket.accept()
   print('client connected')
+  chunks = []
+  count = 0
+  length = clientsocket.recv(10)
+  length = int(length)
+
+  return deserialize(clientsocket.recv(length))
+
+def ordered(obj):
+  if isinstance(obj, dict):
+    return sorted((k, ordered(v)) for k, v in obj.items())
+  if isinstance(obj, list):
+    return sorted(ordered(x) for x in obj)
+  else:
+    return obj
 
 if __name__ == '__main__':
-  server()
-  data = get()
-  print(data)
-  print(type(data))
-
-  #post()
+  global dearflask
+  init_server()
+  while (1):
+    data = listen()
+    print(ordered(data) == ordered(dearflask))
