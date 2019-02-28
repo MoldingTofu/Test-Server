@@ -33,7 +33,7 @@ class packet_mapper:
         p[split[-1]] = value
 
     def pam(self, packet, msg):
-        pass
+        names = get_msg_vars(msg)
 
     def get_msg_vars(self, msg):
         names = []
