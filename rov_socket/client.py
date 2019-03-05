@@ -26,7 +26,7 @@ def post():
 def serialize(data):
   io = StringIO()
   json.dump(data, io)
-  return io.getvalue()
+  return unicode(io.getvalue(), 'utf-8')
 
 def deserialize(data):
   io = StringIO(data)
@@ -36,7 +36,7 @@ def client():
   #create an INET, STREAMing socket
   global s
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  s.connect((socket.gethostname(), 80))
+  s.connect((socket.gethostname(), 5001))
  
 if __name__ == '__main__':
   client()
