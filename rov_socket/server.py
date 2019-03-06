@@ -25,10 +25,11 @@ def post():
 # return deserialized dearflask
 def get():
   global clientsocket
-  chunks = []
-  count = 0
   length = clientsocket.recv(10)
-  length = int(length)
+  try:
+    length = int(length)
+  except:
+    return
 
   return deserialize(clientsocket.recv(length))
 
@@ -44,13 +45,12 @@ def deserialize(data):
 
 def init_server():
   global serversocket
-  global clientsocket
 
   #create an INET, STREAMing socket
   serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
   #bind the socket to a public host, and a well-known port
-  serversocket.bind((socket.gethostname(), 5001))
+  serversocket.bind((socket.gethostname(), 80))
   #become a server socket
   print('server started')
 
@@ -62,12 +62,25 @@ def listen():
   serversocket.listen(5)
   (clientsocket, address) = serversocket.accept()
   print('client connected')
-  chunks = []
-  count = 0
   length = clientsocket.recv(10)
-  length = int(length)
+  try:
+    length = int(length)
+  except:
+    return
 
-  return deserialize(clientsocket.recv(length))
+  get = deserialize(clientsocket.recv(length))
+
+  post = {'lol': '1'}
+  encode = serialize(post)
+  head = str(len(encode))
+  for x in range(10 - len(head)):
+    head = '0' + head
+  encode = head + encode
+  clientsocket.send(encode)
+
+  print('update values')
+
+  return get
 
 def ordered(obj):
   if isinstance(obj, dict):
