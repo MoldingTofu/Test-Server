@@ -1,6 +1,7 @@
 import socket
 import json
 import os
+import sys
 from StringIO import StringIO
 
 with open ('packet.json') as json_data:
@@ -51,6 +52,14 @@ def init_client():
   print('connected')
  
 if __name__ == '__main__':
+  global s
+
   init_client()
-  get = talk()
-  print(get)
+  try:
+    while (1):
+      get = talk()
+      print(get)
+  except (KeyboardInterrupt, SystemExit):
+    print('lol')
+    s.close()
+    sys.exit()

@@ -45,6 +45,7 @@ def deserialize(data):
 
 def init_server():
   global serversocket
+  global clientsocket
 
   #create an INET, STREAMing socket
   serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,19 +55,25 @@ def init_server():
   #become a server socket
   print('server started')
 
-#wait
 def listen():
   global serversocket
   global clientsocket
 
+  print('listening')
   serversocket.listen(5)
   (clientsocket, address) = serversocket.accept()
   print('client connected')
+
+#wait
+def accept():
+  global serversocket
+  global clientsocket
+
   length = clientsocket.recv(10)
   try:
     length = int(length)
   except:
-    return
+    raise Exception()
 
   get = deserialize(clientsocket.recv(length))
 
@@ -91,9 +98,15 @@ def ordered(obj):
     return obj
 
 if __name__ == '__main__':
-  global dearflask
+
   init_server()
+  listen()
   while (1):
-    data = listen()
-    print(data)
-    print(ordered(data) == ordered(dearflask))
+    try:
+      data = accept()
+      print(data)
+      print(ordered(data) == ordered(dearflask))
+    except:
+      clientsocket.shutdown(2)
+      clientsocket.close()
+      listen()
