@@ -54,13 +54,13 @@ def init_server():
   serversocket.bind((socket.gethostname(), 80))
   #become a server socket
   print('server started')
+  serversocket.listen(5)
 
 def listen():
   global serversocket
   global clientsocket
 
   print('listening')
-  serversocket.listen(5)
   (clientsocket, address) = serversocket.accept()
   print('client connected')
 
@@ -107,6 +107,6 @@ if __name__ == '__main__':
       print(data)
       print(ordered(data) == ordered(dearflask))
     except:
-      clientsocket.shutdown(2)
-      clientsocket.close()
+      #clientsocket.shutdown(2)
+      #clientsocket.close()
       listen()
