@@ -6,14 +6,15 @@ import packet_mapper
 from shared_msgs.msg import can_msg, auto_command_msg, thrust_status_msg, thrust_command_msg, esc_single_msg
 from sensor_msgs.msg import Imu, Temperature
 from std_msgs.msg import Float32
+from StringIO import StringIO
 
 with open ('../../../../surface/frontend/src/packets.json') as json_data:
   data = json.load(json_data,)
 
 dearflask = data['dearflask']
 dearclient = data['dearclient']
-flaskMapper = packet_mapper.packet_mapper(dearFlask)
-clientMapper = packet_mapper.packet_mapper(dearClient)
+flask_mapper = packet_mapper.packet_mapper(dearflask)
+client_mapper = packet_mapper.packet_mapper(dearclient)
 thrust_pub = None
 auto_pub = None
 serversocket = None
@@ -30,43 +31,60 @@ def deserialize(data):
 
 def init_server():
   global serversocket
-  global clientsocket
-
   serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  serversocket.bind((socket.gethostname(), 80))
+  serversocket.bind((socket.gethostname(), 8000))
   print('server started')
+  serversocket.listen(5)
 
 def listen():
+  global serversocket
+  global clientsocket
+
+  #listen for client
+  (clientsocket, address) = serversocket.accept()
+  print('client connected')
+
+def accept():
   global serversocket
   global clientsocket
   global dearflask
   global dearclient
 
-  #get dearflask
-  serversocket.listen(5)
-  (clientsocket, address) = serversocket.accept()
   length = clientsocket.recv(10)
-  length = int(length)
+
+  try:
+    length = int(length)
+  except:
+    raise Exception()
+
   dearflask = deserialize(clientsocket.recv(length))
 
   #pass back dearclient
   encode = serialize(dearclient)
   head = str(len(encode))
 
-  for x in range(10 - len(head))
+  for x in range(10 - len(head)):
     head = '0' + head
 
   encode = head + encode
-  serversocket.send(encode)
+  clientsocket.send(encode)
 
   #update thrust and auto
+  #flask_mapper.pam(thrust_command_msg(), dearflask)
+  #flask_mapper.pam(auto_command_msg(), dearflask)
+  #thrust_pub.publish(thrust_command_msg())
+  #auto_pub.publish(auto_command_msg())
+
+  return dearflask
 
 def name_received(msg):
-  names = clientMapper.get_msg_vars(msg)
+  names = client_mapper.get_msg_vars(msg)
   for name in names:
-    clientMapper.map(name, getattr(msg, name), dearClient)
+    client_mapper.map(name, getattr(msg, name), dearclient)
 
 if __name__ == "__main__":
+  global clientsocket
+
   rospy.init_node('mux_demux')
   ns = rospy.get_namespace() # This should return /surface
   
@@ -96,8 +114,13 @@ if __name__ == "__main__":
   auto_pub = rospy.Publisher(ns +'auto_command',
     auto_command_msg, queue_size=10);
 
-  #rate = rospy.Rate(10) # 10hz
-
-  while (1):
-    listen()
-    rospy.spin()
+  init_server()
+  rate = rospy.Rate(10)
+  while not rospy.is_shutdown():
+    try:
+      data = accept()
+      print data
+    except:
+      print('no client connected')
+      listen()
+    rate.sleep()

@@ -52,7 +52,6 @@ def init_client():
   print('connected')
  
 if __name__ == '__main__':
-  global s
 
   init_client()
   try:
